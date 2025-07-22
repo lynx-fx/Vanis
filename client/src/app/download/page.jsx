@@ -74,7 +74,7 @@ export default function ClientPage() {
     setError("")
     setFileInfo(null)
 
-    // Simulate API call delay
+    // TODO: API call here
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // Extract code from URL if full link is pasted
