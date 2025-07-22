@@ -20,7 +20,7 @@ export default function ClientPage() {
       size: 1024000,
       uploadDate: new Date(Date.now() - 7200000),
       downloadUrl: "https://example.com/download/2",
-      expiresIn: "22h",
+      expiresIn: "21h",
     },
   ])
 
@@ -66,11 +66,12 @@ export default function ClientPage() {
 
   const copyToClipboard = (url) => {
     navigator.clipboard.writeText(url)
+    // TODO: Use sooner here
     alert("Link copied to clipboard!")
   }
 
   const uploadFiles = () => {
-    // Simulate file upload
+    // TODO: API call here
     alert(`${files.length} file(s) uploaded successfully!`)
     setFiles([])
   }
