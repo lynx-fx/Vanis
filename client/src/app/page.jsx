@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Navbar from "./Component/nav";
 
 export const metadata = {
   title: "Vanis - Temporary & Secure File Sharing",
@@ -8,7 +9,8 @@ export const metadata = {
 export default function Home() {
   return (
     <>
-      <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-12 lg:p-24 bg-black-900 text-white duration-500 caret-transparent">
+      <Navbar />
+      <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-12 lg:p-24 bg-black-900 text-white duration-500 caret-transparent selection:text-black selection:bg-white">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">Vanis</h1>
         <p className="text-center max-w-xl text-gray-300 mb-12 px-4">
           Helping you share files temporarily and securely while being

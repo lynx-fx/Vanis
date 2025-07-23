@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Download, File, Clock, Shield, AlertCircle, CheckCircle } from "lucide-react"
+import Navbar from "../Component/nav"
 
 export default function ClientPage() {
   const [downloadCode, setDownloadCode] = useState("")
@@ -132,9 +133,11 @@ export default function ClientPage() {
   }
 
   return (
+    <>
+    <Navbar/>
     <main className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 mt-20">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">Download File</h1>
           <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto">
             Enter your download code or paste the shared link to access your file.
@@ -269,5 +272,6 @@ export default function ClientPage() {
         </div>
       </div>
     </main>
+  </>
   )
 }
