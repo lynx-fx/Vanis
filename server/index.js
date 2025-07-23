@@ -4,6 +4,8 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const sessionMiddleware = require("./middleware/session.js");
+const generateCode = require("./utility/codeGenerator.js");
 
 const frontend =
   process.env.NODE_ENV == "production"
@@ -26,6 +28,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(sessionMiddleware);
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -42,6 +45,18 @@ app.get("/", (req, res) => {
 
 app.get("/ping", (req, res) => {
   res.json({ message: "pong" });
+});
+
+app.get("/getSession", (req, res) => {
+  if (!req.session.folderCode) {
+    req.session.folderCode = generateCode(8);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Session initiated",
+    folderCode: req.session.folderCode,
+  });
 });
 
 app.listen(process.env.PORT || 8000, () => {
