@@ -18,6 +18,10 @@ const fileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    lifeSpan: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );

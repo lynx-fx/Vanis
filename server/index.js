@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const sessionMiddleware = require("./middleware/session.js");
 const generateCode = require("./utility/codeGenerator.js");
+require('./jobs/cronsJobs.js');
 
 const frontend =
   process.env.NODE_ENV == "production"
