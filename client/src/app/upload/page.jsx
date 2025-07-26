@@ -1,12 +1,13 @@
 "use client";
 import { useState, useCallback } from "react";
-import { Upload, File, X, Download, Copy, Clock } from "lucide-react";
+import { Upload, File, X, Download, Copy, Clock, Calendar } from "lucide-react";
 import Navbar from "../Component/nav";
 import { toast } from "sonner";
 
 export default function ClientPage() {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState([]);
+  const [expiryDate, setExpiryDate] = useState(24); // Default to 24 hours
   const [uploadedFiles, setUploadedFiles] = useState([
     {
       id: "1",
@@ -25,6 +26,21 @@ export default function ClientPage() {
       expiresIn: "21h",
     },
   ]);
+
+  const VITE_HOST =
+    process.env.NODE_ENV == "production"
+      ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
+      : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
+
+  // Expiry options
+  const expiryOptions = [
+    { value: 1, label: "1 Hour" },
+    { value: 6, label: "6 Hours" },
+    { value: 12, label: "12 Hours" },
+    { value: 24, label: "24 Hours" },
+    { value: 48, label: "48 Hours" },
+    { value: 168, label: "7 Days" },
+  ];
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -70,33 +86,61 @@ export default function ClientPage() {
 
   const copyToClipboard = (url) => {
     navigator.clipboard.writeText(url);
-    // TODO: Use sooner here
     toast.info("Link copied to clipboard!");
   };
 
-  const uploadFiles = () => {
-    // TODO: API call here
-    alert(`${files.length} file(s) uploaded successfully!`);
+  const uploadFiles = async () => {
+    toast.success("Uploading files");
+    const formData = new FormData();
+
+    for (const file of files) {
+      formData.append("files", file);
+    }
+
+    formData.append("lifeSpan", expiryDate);
+
+    try {
+      const response = await fetch(`${VITE_HOST}/api/file/uploadFiles`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "Files uploaded successfully");
+        // Update uploaded files list with new uploads
+        if (data.files) {
+          setUploadedFiles((prev) => [...data.files, ...prev]);
+        }
+      } else {
+        toast.error(data.message || "Failed to upload files");
+      }
+    } catch (err) {
+      toast.error("Failed to upload files. Please try again later");
+      console.log("Upload error:", err);
+    }
+
     setFiles([]);
   };
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-black">
+      <main className="min-h-screen bg-black pt-16">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="text-center mb-8 mt-20">
+          <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
               Secure File Upload
             </h1>
             <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto">
               Share files anonymously and securely. Files are automatically
-              deleted after 24 hours.
+              deleted after the selected expiry time.
             </p>
           </div>
 
           {/* Upload Area Card */}
-          <div className="mb-8 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+          <div className="mb-8 bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
             <div className="p-6">
               <div
                 className={`relative border-2 border-dashed rounded-lg p-8 md:p-12 text-center transition-colors ${
@@ -125,6 +169,37 @@ export default function ClientPage() {
                 <div className="pointer-events-none bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white hover:border-gray-500 px-4 py-2 rounded-md text-sm font-medium inline-flex items-center">
                   Choose Files
                 </div>
+              </div>
+
+              {/* Expiry Date Selection */}
+              <div className="mt-6">
+                <label
+                  htmlFor="expiryDate"
+                  className="block text-sm font-medium text-gray-200 mb-2"
+                >
+                  <Calendar className="inline h-4 w-4 mr-2" />
+                  File Expiry Time
+                </label>
+                <select
+                  id="expiryDate"
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(Number(e.target.value))}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                >
+                  {expiryOptions.map((option) => (
+                    <option
+                      key={option.value}
+                      value={option.value}
+                      className="bg-gray-800 text-white"
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  Files will be automatically deleted after the selected time
+                  period
+                </p>
               </div>
 
               {/* Selected Files */}
@@ -159,6 +234,27 @@ export default function ClientPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Upload Summary */}
+                  <div className="mt-4 p-3 bg-gray-700 rounded-lg border border-gray-600">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300">
+                        {files.length} file{files.length !== 1 ? "s" : ""}{" "}
+                        selected
+                      </span>
+                      <span className="text-gray-300">
+                        Expires in:{" "}
+                        <span className="text-white font-medium">
+                          {
+                            expiryOptions.find(
+                              (opt) => opt.value === expiryDate
+                            )?.label
+                          }
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+
                   <button
                     onClick={uploadFiles}
                     className="w-full mt-4 bg-gray-700 text-white hover:bg-gray-600 border-0 px-4 py-2 rounded-md font-medium transition-colors"
@@ -218,6 +314,10 @@ export default function ClientPage() {
                         >
                           <Copy className="h-4 w-4 mr-1" />
                           Copy Link
+                        </button>
+                        <button className="border border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white bg-gray-800 hover:border-gray-500 px-3 py-1 rounded-md text-sm font-medium inline-flex items-center transition-colors">
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
                         </button>
                       </div>
                     </div>

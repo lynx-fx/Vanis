@@ -6,7 +6,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const sessionMiddleware = require("./middleware/session.js");
 const generateCode = require("./utility/codeGenerator.js");
-require('./jobs/cronsJobs.js');
+require("./jobs/cronsJobs.js");
+const fileRoutes = require("./route/fileRoute.js");
 
 const frontend =
   process.env.NODE_ENV == "production"
@@ -59,6 +60,8 @@ app.get("/getSession", (req, res) => {
     folderCode: req.session.folderCode,
   });
 });
+
+app.use("/api/file", fileRoutes);
 
 app.listen(process.env.PORT || 8000, () => {
   console.log(
