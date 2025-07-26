@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { Upload, File, X, Download, Copy, Clock } from "lucide-react";
 import Navbar from "../Component/nav";
+import { toast } from "sonner";
 
 export default function ClientPage() {
   const [dragActive, setDragActive] = useState(false);
@@ -70,7 +71,7 @@ export default function ClientPage() {
   const copyToClipboard = (url) => {
     navigator.clipboard.writeText(url);
     // TODO: Use sooner here
-    alert("Link copied to clipboard!");
+    toast.info("Link copied to clipboard!");
   };
 
   const uploadFiles = () => {
