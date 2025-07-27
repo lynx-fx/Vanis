@@ -8,7 +8,8 @@ router.post(
   upload.array("files", 20),
   fileController.uploadFiles
 );
-router.get("/getFile", fileController.getFiles);
+router.get("/getFile", fileController.getFile);
 router.get("/getFolder", fileController.getFolder);
+router.get("/getOwnerFolder", fileController.getOwnerFolder);
 
 module.exports = router;

@@ -1,15 +1,17 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
 import { Upload, File, X, Download, Copy, Clock, Calendar } from "lucide-react";
-import Navbar from "../Component/nav";
+import Navbar from "../component/nav.jsx";
+import Loading from "../component/loading.jsx";
 import { toast } from "sonner";
 
 export default function ClientPage() {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState([]);
   const [expiryDate, setExpiryDate] = useState(24); // Default to 24 hours
-  const [uploadedFiles, setUploadedFiles] = useState([
-  ]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingCounter, setLoadingCounter] = useState(1);
 
   const VITE_HOST =
     process.env.NODE_ENV == "production"
@@ -17,8 +19,75 @@ export default function ClientPage() {
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
 
   useEffect(() => {
-    // TODO: Fetch uploaded files as per session
+    if (loadingCounter === 0) setLoadingCounter((prev) => prev + 1);
   }, []);
+
+  useEffect(() => {
+    // DONE: Fetch uploaded files as per session
+    const getUploadedFiles = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${VITE_HOST}/api/file/getOwnerFolder`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        const data = await response.json();
+        if (
+          response.ok &&
+          data.success &&
+          data.uploadedFilesResponse &&
+          data.uploadedFilesResponse.length > 0
+        ) {
+          setUploadedFiles((prev) => [...data.uploadedFilesResponse, ...prev]);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.error("Error fetching data: ", error);
+      }
+    };
+    getUploadedFiles();
+  }, [loadingCounter]);
+
+  const uploadFiles = async () => {
+    toast.success("Uploading files");
+    const formData = new FormData();
+
+    for (const file of files) {
+      formData.append("files", file);
+    }
+
+    formData.append("lifeSpan", expiryDate);
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${VITE_HOST}/api/file/uploadFiles`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(data.message || "Files uploaded successfully");
+        if (
+          data.uploadedFilesResponse &&
+          data.uploadedFilesResponse.length > 0
+        ) {
+          setUploadedFiles((prev) => [...data.uploadedFilesResponse, ...prev]);
+        }
+      } else {
+        toast.error(data.message || "Failed to upload files");
+      }
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      toast.error("Failed to upload files. Please try again later");
+      console.log("Upload error:", err);
+    }
+    setFiles([]);
+  };
 
   // Expiry options
   const expiryOptions = [
@@ -74,48 +143,12 @@ export default function ClientPage() {
 
   const copyToClipboard = (url) => {
     navigator.clipboard.writeText(url);
-    toast.info("Link copied to clipboard!");
-  };
-
-  const uploadFiles = async () => {
-    toast.success("Uploading files");
-    const formData = new FormData();
-
-    for (const file of files) {
-      formData.append("files", file);
-    }
-
-    formData.append("lifeSpan", expiryDate);
-
-    try {
-      const response = await fetch(`${VITE_HOST}/api/file/uploadFiles`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast.success(data.message || "Files uploaded successfully");
-        console.log("Uploaded files:", data.uploadedFilesResponse);
-        if (
-          data.uploadedFilesResponse &&
-          data.uploadedFilesResponse.length > 0
-        ) {
-          setUploadedFiles((prev) => [...data.uploadedFilesResponse, ...prev]);
-        }
-      } else {
-        toast.error(data.message || "Failed to upload files");
-      }
-    } catch (err) {
-      toast.error("Failed to upload files. Please try again later");
-      console.log("Upload error:", err);
-    }
-    setFiles([]);
+    toast.info("Copied to clipboard!");
   };
 
   return (
     <>
+      {isLoading && <Loading />}
       <Navbar />
       <main className="min-h-screen bg-black pt-16 caret-transparent">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -306,6 +339,13 @@ export default function ClientPage() {
                         >
                           <Copy className="h-4 w-4 mr-1" />
                           Copy Link
+                        </button>
+                        <button
+                          onClick={() => copyToClipboard(file.code)}
+                          className="border border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white bg-gray-800 hover:border-gray-500 px-3 py-1 rounded-md text-sm font-medium inline-flex items-center transition-colors"
+                        >
+                          <Copy className="h-4 w-4 mr-1" />
+                          {file.code}
                         </button>
                       </div>
                     </div>

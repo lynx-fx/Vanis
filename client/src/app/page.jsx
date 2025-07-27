@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Navbar from "./Component/nav";
+import Navbar from "./component/nav";
 
 export const metadata = {
   title: "Vanis - Temporary & Secure File Sharing",
