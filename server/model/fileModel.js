@@ -6,10 +6,6 @@ const fileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    fileUri: {
-      type: String,
-      required: true,
-    },
     code: {
       type: String,
       required: true,
@@ -22,6 +18,15 @@ const fileSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    size: {
+      type: Number,
+      required: true,
+    },
+    downloadUrl: {
+      type: String,
+      required: true,
+      default: "http://localhost:3000/upload"
+    }
   },
   { timestamps: true }
 );

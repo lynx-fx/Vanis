@@ -1,10 +1,11 @@
 const File = require("../model/fileModel.js");
 const generateCode = require("../utility/codeGenerator.js");
 
+// TODO: Get actual filename instead of unique names
 exports.uploadFiles = async (req, res) => {
   const files = req.files;
-  const fileCodes = [];
   const { lifeSpan } = req.body;
+  const uploadedFiles = [];
 
   if (!files || files.length === 0) {
     return res.status(400).json({ success: false, message: "No files found." });
@@ -20,20 +21,30 @@ exports.uploadFiles = async (req, res) => {
     const code = generateCode();
     const newFile = new File({
       fileName: file.filename,
-      fileUri: file.filename,
       code,
       folder: folderCode,
       lifeSpan,
+      size: file.size,
     });
     await newFile.save();
-    fileCodes.push(code);
+    uploadedFiles.push(newFile);
   }
+
+  const uploadedFilesResponse = uploadedFiles.map((file) => ({
+    id: file._id.toString(),
+    fileName: file.fileName,
+    code: file.code,
+    folder: file.folder,
+    lifeSpan: file.lifeSpan,
+    size: file.size,
+    createdAt: file.createdAt,
+    downloadUrl: file.downloadUrl,
+  }));
 
   return res.status(200).json({
     success: true,
     message: "Files uploaded successfully",
-    fileCodes,
-    folderCode,
+    uploadedFilesResponse,
   });
 };
 
@@ -87,11 +98,10 @@ exports.checkValidity = async (req, res) => {
       existingFile.createdAt.getTime() + existingFile.lifeSpan * 60 * 60 * 1000
     );
 
-    if (expiresAt < new Date) {
+    if (expiresAt < new Date()) {
       // delete the file from system
       await File.findByIdAndDelete(existingFile.id);
-      return
+      return;
     }
   }
 };
-

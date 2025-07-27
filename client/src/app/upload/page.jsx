@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Upload, File, X, Download, Copy, Clock, Calendar } from "lucide-react";
 import Navbar from "../Component/nav";
 import { toast } from "sonner";
@@ -9,28 +9,16 @@ export default function ClientPage() {
   const [files, setFiles] = useState([]);
   const [expiryDate, setExpiryDate] = useState(24); // Default to 24 hours
   const [uploadedFiles, setUploadedFiles] = useState([
-    {
-      id: "1",
-      name: "presentation.pdf",
-      size: 2048000,
-      uploadDate: new Date(Date.now() - 3600000),
-      downloadUrl: "https://example.com/download/1",
-      expiresIn: "23h",
-    },
-    {
-      id: "2",
-      name: "image.jpg",
-      size: 1024000,
-      uploadDate: new Date(Date.now() - 7200000),
-      downloadUrl: "https://example.com/download/2",
-      expiresIn: "21h",
-    },
   ]);
 
   const VITE_HOST =
     process.env.NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
+
+  useEffect(() => {
+    // TODO: Fetch uploaded files as per session
+  }, []);
 
   // Expiry options
   const expiryOptions = [
@@ -109,9 +97,12 @@ export default function ClientPage() {
 
       if (response.ok && data.success) {
         toast.success(data.message || "Files uploaded successfully");
-        // Update uploaded files list with new uploads
-        if (data.files) {
-          setUploadedFiles((prev) => [...data.files, ...prev]);
+        console.log("Uploaded files:", data.uploadedFilesResponse);
+        if (
+          data.uploadedFilesResponse &&
+          data.uploadedFilesResponse.length > 0
+        ) {
+          setUploadedFiles((prev) => [...data.uploadedFilesResponse, ...prev]);
         }
       } else {
         toast.error(data.message || "Failed to upload files");
@@ -120,14 +111,13 @@ export default function ClientPage() {
       toast.error("Failed to upload files. Please try again later");
       console.log("Upload error:", err);
     }
-
     setFiles([]);
   };
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-black pt-16">
+      <main className="min-h-screen bg-black pt-16 caret-transparent">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -290,23 +280,25 @@ export default function ClientPage() {
                         <File className="h-5 w-5 text-gray-400 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-white truncate">
-                            {file.name}
+                            {file.fileName}
                           </p>
                           <div className="flex items-center space-x-4 text-xs text-gray-400">
                             <span>{formatFileSize(file.size)}</span>
                             <span>
-                              {file.uploadDate.toLocaleDateString()} at{" "}
-                              {file.uploadDate.toLocaleTimeString([], {
+                              {/* {new Date(file.createdAt).toLocaleDateString()} at{" "}
+                              {new Date(file.createdAt).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              })}
+                              })} */}
+                              {new Date(file.createdAt).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 flex-shrink-0">
                         <span className="text-xs bg-gray-600 text-gray-200 border border-gray-500 hover:bg-gray-500 px-2 py-1 rounded-md">
-                          Expires in {file.expiresIn}
+                          Expires in {file.lifeSpan == 168 ? 7 : file.lifeSpan}
+                          {file.lifeSpan == 168 ? "d" : "h"}
                         </span>
                         <button
                           onClick={() => copyToClipboard(file.downloadUrl)}
@@ -314,10 +306,6 @@ export default function ClientPage() {
                         >
                           <Copy className="h-4 w-4 mr-1" />
                           Copy Link
-                        </button>
-                        <button className="border border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white bg-gray-800 hover:border-gray-500 px-3 py-1 rounded-md text-sm font-medium inline-flex items-center transition-colors">
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
                         </button>
                       </div>
                     </div>
