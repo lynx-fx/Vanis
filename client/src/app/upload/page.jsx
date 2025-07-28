@@ -8,7 +8,7 @@ import { toast } from "sonner";
 export default function ClientPage() {
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState([]);
-  const [expiryDate, setExpiryDate] = useState(24); // Default to 24 hours
+  const [expiryDate, setExpiryDate] = useState(24);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCounter, setLoadingCounter] = useState(1);
@@ -39,7 +39,7 @@ export default function ClientPage() {
           data.uploadedFilesResponse &&
           data.uploadedFilesResponse.length > 0
         ) {
-          setUploadedFiles((prev) => [...data.uploadedFilesResponse, ...prev]);
+          setUploadedFiles([...data.uploadedFilesResponse]);
         }
         setIsLoading(false);
       } catch (error) {
@@ -51,7 +51,7 @@ export default function ClientPage() {
   }, [loadingCounter]);
 
   const uploadFiles = async () => {
-    toast.success("Uploading files");
+    toast.info("Uploading files");
     const formData = new FormData();
 
     for (const file of files) {
@@ -286,7 +286,7 @@ export default function ClientPage() {
                   </button>
                 </div>
               )}
-            </div>
+            </div>  
           </div>
 
           {/* Recently Uploaded Files Card */}

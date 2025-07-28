@@ -11,5 +11,6 @@ router.post(
 router.get("/getFile", fileController.getFile);
 router.get("/getFolder", fileController.getFolder);
 router.get("/getOwnerFolder", fileController.getOwnerFolder);
+router.get("/downloadFile/:fileName", fileController.downloadFile);
 
 module.exports = router;
