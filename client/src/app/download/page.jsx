@@ -25,18 +25,6 @@ export default function ClientPage() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isExpired, setIsExpired] = useState(false);
 
-  // // Mock file database
-  // const mockFiles = {
-  //   ABC123: {
-  //     id: "1",
-  //     name: "presentation.pdf",
-  //     size: 2048000,
-  //     uploadDate: new Date(Date.now() - 3600000),
-  //     expiresAt: new Date(Date.now() + 20 * 3600000),
-  //     type: "application/pdf",
-  //   },
-  // };
-
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -68,6 +56,15 @@ export default function ClientPage() {
     return `Expires in ${minutes}m`;
   };
 
+  const extractCode = (urlString) => {
+    try {
+      const url = new URL(urlString);
+      return url.search.slice(1);
+    } catch (err) {
+      setError("Invalid code or link");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!downloadCode.trim()) {
@@ -75,15 +72,20 @@ export default function ClientPage() {
       return;
     }
 
+    let code = downloadCode;
     setLoading(true);
     setError("");
 
+    if (downloadCode.length !== 6 && downloadCode.length !== 8) {
+      code = extractCode(downloadCode);
+    }
+
     // DONE: API call here
-    if (downloadCode.length === 6) {
+    if (code.length === 6) {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${VITE_HOST}/api/file/getFile?code=${downloadCode}`,
+          `${VITE_HOST}/api/file/getFile?code=${code}`,
           {
             method: "GET",
           }
@@ -104,11 +106,11 @@ export default function ClientPage() {
         setIsLoading(false);
         console.error("Error fetching files: ", err);
       }
-    } else if (downloadCode.length === 8) {
+    } else if (code.length === 8) {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${VITE_HOST}/api/file/getFolder?code=${downloadCode}`,
+          `${VITE_HOST}/api/file/getFolder?code=${code}`,
           {
             method: "GET",
           }
@@ -130,17 +132,9 @@ export default function ClientPage() {
         console.error("Error fetching files: ", err);
       }
     } else {
+      setUploadedFiles([]);
       setError("Invalid code. Please enter a valid code.");
     }
-
-    // TODO: Extract code from URL if full link is pasted
-    // let code = downloadCode.trim();
-    // if (code.includes("/download/")) {
-    //   code = code.split("/download/")[1];
-    // }
-    // if (code.includes("?code=")) {
-    //   code = code.split("?code=")[1];
-    // }
 
     setDownloadCode("");
     setLoading(false);
