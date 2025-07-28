@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FileX, Home, Download, ArrowRight } from "lucide-react";
-import Navbar from "./component/nav";
+import Navbar from "./Component/nav";
 import { motion } from "framer-motion";
 
 export default function NotFound() {
