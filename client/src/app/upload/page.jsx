@@ -1,8 +1,8 @@
 "use client"
 import { useState, useCallback, useEffect } from "react"
 import { Upload, File, X, Copy, Clock, Calendar } from "lucide-react"
-import Navbar from "../component/nav.jsx"
-import Loading from "../component/loading.jsx"
+import Navbar from "../Component/nav.jsx"
+import Loading from "../Component/loading.jsx"
 import { toast } from "sonner"
 
 export default function ClientPage() {

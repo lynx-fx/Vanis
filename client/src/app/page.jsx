@@ -1,8 +1,8 @@
 "use client"
 import Link from "next/link"
-import Navbar from "./component/nav"
-import Download from "./component/download"
-import Upload from "./component/upload"
+import Navbar from "./Component/nav"
+import Download from "./Component/download"
+import Upload from "./Component/upload"
 
 export default function Home() {
   return (

@@ -1,135 +1,146 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Download, File, Clock, AlertCircle } from "lucide-react" // Corrected imports
-import Navbar from "../../component/nav.jsx"
-import Loading from "../../component/loading.jsx"
-import { toast } from "sonner" // Corrected import
+"use client";
+import { useState, useEffect } from "react";
+import { Download, File, Clock, AlertCircle } from "lucide-react";
+import Navbar from "../../Component/nav.jsx";
+import Loading from "../../Component/loading.jsx";
+import { toast } from "sonner";
 
 export default function DownloadClient({ code }) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const VITE_HOST =
     process.env.NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
-      : process.env.NEXT_PUBLIC_BACKEND_LOCAL
-  const [uploadedFiles, setUploadedFiles] = useState([])
-  const [isExpired, setIsExpired] = useState(false)
+      : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
     if (code) {
       // Only fetch if code is provided
-      getFiles()
+      getFiles();
     } else {
-      setError("Please provide a download code or link in the URL.")
+      setError("Please provide a download code or link in the URL.");
     }
-  }, [code]) // Depend on code prop
+  }, [code]); // Depend on code prop
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
 
   const getTimeRemaining = (createdAt, lifeSpan) => {
-    const created = new Date(createdAt)
-    const expiresAt = new Date(created.getTime() + lifeSpan * 60 * 60 * 1000)
-    const now = new Date()
-    const timeLeft = expiresAt - now
+    const created = new Date(createdAt);
+    const expiresAt = new Date(created.getTime() + lifeSpan * 60 * 60 * 1000);
+    const now = new Date();
+    const timeLeft = expiresAt - now;
 
     if (timeLeft <= 0) {
-      setIsExpired(true)
-      return "Expired"
+      setIsExpired(true);
+      return "Expired";
     }
 
-    const hours = Math.floor(timeLeft / (1000 * 60 * 60))
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
     if (hours > 0) {
-      return `Expires in ${hours}h ${minutes}m`
+      return `Expires in ${hours}h ${minutes}m`;
     }
-    return `Expires in ${minutes}m`
-  }
+    return `Expires in ${minutes}m`;
+  };
 
   const getFiles = async () => {
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
 
     if (code.length === 6) {
       try {
-        setIsLoading(true)
-        const response = await fetch(`${VITE_HOST}/api/file/getFile?code=${code}`, {
-          method: "GET",
-        })
-        const data = await response.json()
+        setIsLoading(true);
+        const response = await fetch(
+          `${VITE_HOST}/api/file/getFile?code=${code}`,
+          {
+            method: "GET",
+          }
+        );
+        const data = await response.json();
         if (response.ok && data.success) {
-          setUploadedFiles([...data.uploadedFilesResponse])
+          setUploadedFiles([...data.uploadedFilesResponse]);
         } else {
-          setUploadedFiles([])
-          setError("No files found for the provided code.")
+          setUploadedFiles([]);
+          setError("No files found for the provided code.");
         }
-        setIsLoading(false)
+        setIsLoading(false);
       } catch (err) {
-        setIsLoading(false)
-        console.error("Error fetching files: ", err)
-        setError("Failed to fetch files. Please try again later.")
+        setIsLoading(false);
+        console.error("Error fetching files: ", err);
+        setError("Failed to fetch files. Please try again later.");
       }
     } else if (code.length === 8) {
       try {
-        setIsLoading(true)
-        const response = await fetch(`${VITE_HOST}/api/file/getFolder?code=${code}`, {
-          method: "GET",
-        })
-        const data = await response.json()
+        setIsLoading(true);
+        const response = await fetch(
+          `${VITE_HOST}/api/file/getFolder?code=${code}`,
+          {
+            method: "GET",
+          }
+        );
+        const data = await response.json();
         if (response.ok && data.success) {
-          setUploadedFiles([...data.uploadedFilesResponse])
+          setUploadedFiles([...data.uploadedFilesResponse]);
         } else {
-          setUploadedFiles([])
-          setError("No files found for the provided code.")
+          setUploadedFiles([]);
+          setError("No files found for the provided code.");
         }
-        setIsLoading(false)
+        setIsLoading(false);
       } catch (err) {
-        setIsLoading(false)
-        console.error("Error fetching files: ", err)
-        setError("Failed to fetch files. Please try again later.")
+        setIsLoading(false);
+        console.error("Error fetching files: ", err);
+        setError("Failed to fetch files. Please try again later.");
       }
     } else {
-      setUploadedFiles([])
-      setError("Invalid code. Please provide a valid 6 or 8 character code.")
+      setUploadedFiles([]);
+      setError("Invalid code. Please provide a valid 6 or 8 character code.");
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleDownload = async (fileName) => {
-    toast.info(`Downloading...`)
+    toast.info(`Downloading...`);
     try {
-      setIsLoading(true)
-      const response = await fetch(`${VITE_HOST}/api/file/downloadFile/${fileName}`, {
-        method: "GET",
-      })
+      setIsLoading(true);
+      const response = await fetch(
+        `${VITE_HOST}/api/file/downloadFile/${fileName}`,
+        {
+          method: "GET",
+        }
+      );
       if (!response.ok) {
-        const data = await response.json()
-        toast.error(data.message || "Failed to download file")
+        const data = await response.json();
+        toast.error(data.message || "Failed to download file");
       } else {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = fileName
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        window.URL.revokeObjectURL(url)
-        toast.success(`File downloaded successfully!`)
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        toast.success(`File downloaded successfully!`);
       }
-      setIsLoading(false)
+      setIsLoading(false);
     } catch (err) {
-      console.log("Error downloading file: ", err)
-      toast.error("Failed to download file")
+      console.log("Error downloading file: ", err);
+      toast.error("Failed to download file");
     }
-  }
+  };
 
   return (
     <>
@@ -179,10 +190,14 @@ export default function DownloadClient({ code }) {
                       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                         <File className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs sm:text-sm font-medium text-white truncate">{file.fileName}</p>
+                          <p className="text-xs sm:text-sm font-medium text-white truncate">
+                            {file.fileName}
+                          </p>
                           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-xs text-gray-400 space-y-1 sm:space-y-0">
                             <span>{formatFileSize(file.size)}</span>
-                            <span>{new Date(file.createdAt).toLocaleDateString()}</span>
+                            <span>
+                              {new Date(file.createdAt).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -209,11 +224,12 @@ export default function DownloadClient({ code }) {
           {/* Help Section */}
           <div className="mt-6 sm:mt-8 text-center">
             <p className="text-gray-500 text-xs sm:text-sm px-4">
-              Need help? The download code is usually 6 or 8 characters long (e.g., ABC123, ABCD1234)
+              Need help? The download code is usually 6 or 8 characters long
+              (e.g., ABC123, ABCD1234)
             </p>
           </div>
         </div>
       </main>
     </>
-  )
+  );
 }
