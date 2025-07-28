@@ -123,7 +123,18 @@ exports.getFolder = async (req, res) => {
     return res.status(404).json({ success: false, message: "No files found" });
   }
 
-  return res.status(200).json({ success: true, existingFiles });
+    const uploadedFilesResponse = existingFiles.map((file) => ({
+    id: file._id.toString(),
+    fileName: file.fileName,
+    code: file.code,
+    folder: file.folder,
+    lifeSpan: file.lifeSpan,
+    size: file.size,
+    createdAt: file.createdAt,
+    downloadUrl: file.downloadUrl,
+  }));
+
+  return res.status(200).json({ success: true, uploadedFilesResponse });
 };
 
 exports.downloadFile = async (req, res) => {
@@ -140,10 +151,6 @@ exports.downloadFile = async (req, res) => {
   res.download(filePath, fileName, (err) => {
     if (err) {
       console.log(err);
-      // return res.status(500).json({
-      //   success: false,
-      //   message: "Download failed, please try again later",
-      // });
     }
   });
 };

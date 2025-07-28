@@ -78,30 +78,59 @@ export default function ClientPage() {
     setLoading(true);
     setError("");
 
-    // TODO: API call here
-    try {
-      setIsLoading(true);
-      const response = await fetch(
-        `${VITE_HOST}/api/file/getFile?code=${downloadCode}`,
-        {
-          method: "GET",
+    // DONE: API call here
+    if (downloadCode.length === 6) {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `${VITE_HOST}/api/file/getFile?code=${downloadCode}`,
+          {
+            method: "GET",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setUploadedFiles([]);
+          setUploadedFiles([...data.uploadedFilesResponse]);
+          setDownloaded(false);
+        } else {
+          setUploadedFiles([]);
+          setError("No files found for the provided code.");
         }
-      );
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setUploadedFiles([]);
-        setUploadedFiles([...data.uploadedFilesResponse]);
-        setDownloaded(false);
-      } else {
-        setUploadedFiles([]);
-        setError("No files found for the provided code.");
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        console.error("Error fetching files: ", err);
       }
-      setIsLoading(false);
-    } catch (err) {
-      setIsLoading(false);
-      console.error("Error fetching files: ", err);
+    } else if (downloadCode.length === 8) {
+      try {
+        setIsLoading(true);
+        const response = await fetch(
+          `${VITE_HOST}/api/file/getFolder?code=${downloadCode}`,
+          {
+            method: "GET",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setUploadedFiles([]);
+          setUploadedFiles([...data.uploadedFilesResponse]);
+          setDownloaded(false);
+        } else {
+          setUploadedFiles([]);
+          setError("No files found for the provided code.");
+        }
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        console.error("Error fetching files: ", err);
+      }
+    } else {
+      setError("Invalid code. Please enter a valid code.");
     }
 
     // TODO: Extract code from URL if full link is pasted
@@ -130,7 +159,7 @@ export default function ClientPage() {
       );
 
       if (!response.ok) {
-        const data =await response.json();
+        const data = await response.json();
         toast.error(data.message || "Failed to download file");
       } else {
         const blob = await response.blob();
@@ -158,7 +187,7 @@ export default function ClientPage() {
     <>
       {isLoading && <Loading />}
       <Navbar />
-      <main className="min-h-screen bg-black caret-transparent">
+      <main className="min-h-screen bg-black caret-transparent selection:text-black selection:bg-white">
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           <div className="text-center mb-8 mt-20">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -187,7 +216,7 @@ export default function ClientPage() {
                     value={downloadCode}
                     onChange={(e) => setDownloadCode(e.target.value)}
                     placeholder="Enter code"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 caret-white"
                   />
                 </div>
 
@@ -279,8 +308,8 @@ export default function ClientPage() {
           {/* Help Section */}
           <div className="mt-8 text-center">
             <p className="text-gray-500 text-sm">
-              Need help? The download code is usually 6 characters long (e.g.,
-              ABC123)
+              Need help? The download code is usually 6 or 8 characters long
+              (e.g., ABC123, ABCD1234)
             </p>
           </div>
         </div>

@@ -11,7 +11,7 @@ export default function ClientPage() {
   const [expiryDate, setExpiryDate] = useState(24);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingCounter, setLoadingCounter] = useState(1);
+  const [folderCode, setFolderCode] = useState("");
 
   const VITE_HOST =
     process.env.NODE_ENV == "production"
@@ -19,8 +19,9 @@ export default function ClientPage() {
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
 
   useEffect(() => {
-    if (loadingCounter === 0) setLoadingCounter((prev) => prev + 1);
-  }, []);
+    const code = uploadedFiles.length > 0 ? uploadedFiles[0].folder : "";
+    setFolderCode(code)
+  }, [uploadedFiles])
 
   useEffect(() => {
     // DONE: Fetch uploaded files as per session
@@ -48,7 +49,7 @@ export default function ClientPage() {
       }
     };
     getUploadedFiles();
-  }, [loadingCounter]);
+  }, []);
 
   const uploadFiles = async () => {
     toast.info("Uploading files");
@@ -150,7 +151,7 @@ export default function ClientPage() {
     <>
       {isLoading && <Loading />}
       <Navbar />
-      <main className="min-h-screen bg-black pt-16 caret-transparent">
+      <main className="min-h-screen bg-black pt-16 caret-transparent selection:text-black selection:bg-white">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -286,16 +287,23 @@ export default function ClientPage() {
                   </button>
                 </div>
               )}
-            </div>  
+            </div>
           </div>
 
           {/* Recently Uploaded Files Card */}
           <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
-            <div className="p-6 border-b border-gray-700">
+            <div className="p-6 border-b border-gray-700 flex items-center justify-between">
               <h2 className="flex items-center space-x-2 text-white text-lg font-semibold">
                 <Clock className="h-5 w-5 text-gray-400" />
                 <span>Recently Uploaded Files</span>
               </h2>
+              <button
+                onClick={() => copyToClipboard(folderCode)}
+                className="border border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white bg-gray-800 hover:border-gray-500 px-3 py-1 rounded-md text-sm font-medium inline-flex items-center transition-colors"
+              >
+                <Copy className="h-4 w-4 mr-1" />
+                {folderCode.length == 8 ? `Folder: ${folderCode}` : "Generating Folder's code" }
+              </button>
             </div>
             <div className="p-6">
               {uploadedFiles.length === 0 ? (
@@ -318,11 +326,6 @@ export default function ClientPage() {
                           <div className="flex items-center space-x-4 text-xs text-gray-400">
                             <span>{formatFileSize(file.size)}</span>
                             <span>
-                              {/* {new Date(file.createdAt).toLocaleDateString()} at{" "}
-                              {new Date(file.createdAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })} */}
                               {new Date(file.createdAt).toLocaleDateString()}
                             </span>
                           </div>
