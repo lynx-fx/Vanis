@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import Link from "next/link"
@@ -12,6 +13,7 @@ export default function Navbar() {
     setIsOpen(!isOpen)
   }
 
+  // Removed type annotation for path to make it purely JSX compatible
   const isActive = (path) => {
     if (path === "/" && pathname === "/") return true
     if (path !== "/" && pathname.startsWith(path)) return true
@@ -26,27 +28,21 @@ export default function Navbar() {
           <Link href="/" className="flex items-center space-x-2">
             <div className="text-2xl font-bold text-white hover:text-gray-300 transition-colors">Vanis</div>
           </Link>
-
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/upload"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive("/") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"
-              }`}
+              className={`${isActive("/upload") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"} px-3 py-2 rounded-md text-sm font-medium transition-colors`}
             >
               Upload
             </Link>
             <Link
               href="/download"
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive("/download") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"
-              }`}
+              className={`${isActive("/download") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"} px-3 py-2 rounded-md text-sm font-medium transition-colors`}
             >
               Download
             </Link>
           </div>
-
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
@@ -58,32 +54,27 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-
         {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-800">
-              <Link
-                href="/upload"
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  isActive("/") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"
-                }`}
-              >
-                Upload
-              </Link>
-              <Link
-                href="/download"
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  isActive("/download") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"
-                }`}
-              >
-                Download
-              </Link>
-            </div>
+        <div
+          className={`${isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"} md:hidden transition-all duration-300 ease-in-out overflow-hidden`}
+        >
+          <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-800">
+            <Link
+              href="/upload"
+              onClick={() => setIsOpen(false)}
+              className={`${isActive("/upload") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"} block px-3 py-2 rounded-md text-base font-medium transition-colors`}
+            >
+              Upload
+            </Link>
+            <Link
+              href="/download"
+              onClick={() => setIsOpen(false)}
+              className={`${isActive("/download") ? "bg-gray-800 text-white" : "text-gray-300 hover:text-white hover:bg-gray-800"} block px-3 py-2 rounded-md text-base font-medium transition-colors`}
+            >
+              Download
+            </Link>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   )

@@ -1,15 +1,13 @@
 "use client"
-import { useState } from "react"
-import { Download, File, Clock, Shield, AlertCircle } from "lucide-react"
-import Navbar from "../component/nav.jsx"
-import Loading from "../component/loading.jsx"
-import { toast } from "sonner"
+import { useState, useEffect } from "react"
+import { Download, File, Clock, AlertCircle } from "lucide-react" // Corrected imports
+import Navbar from "../../component/nav.jsx"
+import Loading from "../../component/loading.jsx"
+import { toast } from "sonner" // Corrected import
 
-export default function ClientPage() {
-  const [downloadCode, setDownloadCode] = useState("")
+export default function DownloadClient({ code }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [downloaded, setDownloaded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const VITE_HOST =
     process.env.NODE_ENV == "production"
@@ -17,6 +15,15 @@ export default function ClientPage() {
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL
   const [uploadedFiles, setUploadedFiles] = useState([])
   const [isExpired, setIsExpired] = useState(false)
+
+  useEffect(() => {
+    if (code) {
+      // Only fetch if code is provided
+      getFiles()
+    } else {
+      setError("Please provide a download code or link in the URL.")
+    }
+  }, [code]) // Depend on code prop
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes"
@@ -46,31 +53,10 @@ export default function ClientPage() {
     return `Expires in ${minutes}m`
   }
 
-  const extractCode = (urlString) => {
-    try {
-      const url = new URL(urlString)
-      const segments = url.pathname.split("/").filter(Boolean)
-      return segments[segments.length - 1]
-    } catch (err) {
-      setError("Invalid code or link")
-      return
-    }
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!downloadCode.trim()) {
-      setError("Please enter a download code or link")
-      return
-    }
+  const getFiles = async () => {
     setLoading(true)
     setError("")
-    let code = downloadCode
-    if (downloadCode.length !== 6 && downloadCode.length !== 8) {
-      code = extractCode(downloadCode)
-    }
 
-    // DONE: API call here
     if (code.length === 6) {
       try {
         setIsLoading(true)
@@ -79,9 +65,7 @@ export default function ClientPage() {
         })
         const data = await response.json()
         if (response.ok && data.success) {
-          setUploadedFiles([])
           setUploadedFiles([...data.uploadedFilesResponse])
-          setDownloaded(false)
         } else {
           setUploadedFiles([])
           setError("No files found for the provided code.")
@@ -90,6 +74,7 @@ export default function ClientPage() {
       } catch (err) {
         setIsLoading(false)
         console.error("Error fetching files: ", err)
+        setError("Failed to fetch files. Please try again later.")
       }
     } else if (code.length === 8) {
       try {
@@ -99,9 +84,7 @@ export default function ClientPage() {
         })
         const data = await response.json()
         if (response.ok && data.success) {
-          setUploadedFiles([])
           setUploadedFiles([...data.uploadedFilesResponse])
-          setDownloaded(false)
         } else {
           setUploadedFiles([])
           setError("No files found for the provided code.")
@@ -110,18 +93,17 @@ export default function ClientPage() {
       } catch (err) {
         setIsLoading(false)
         console.error("Error fetching files: ", err)
+        setError("Failed to fetch files. Please try again later.")
       }
     } else {
       setUploadedFiles([])
-      setError("Invalid code. Please enter a valid code.")
+      setError("Invalid code. Please provide a valid 6 or 8 character code.")
     }
-    setDownloadCode("")
     setLoading(false)
   }
 
   const handleDownload = async (fileName) => {
     toast.info(`Downloading...`)
-    // DONE: Implement download logic here
     try {
       setIsLoading(true)
       const response = await fetch(`${VITE_HOST}/api/file/downloadFile/${fileName}`, {
@@ -147,70 +129,35 @@ export default function ClientPage() {
       console.log("Error downloading file: ", err)
       toast.error("Failed to download file")
     }
-    setDownloaded(true)
   }
 
   return (
     <>
       {isLoading && <Loading />}
       <Navbar />
-      <main className="min-h-screen bg-black caret-transparent selection:text-black selection:bg-white">
+      <main className="min-h-screen bg-black pt-16 caret-transparent selection:text-black selection:bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-4xl">
-          <div className="text-center mb-6 sm:mb-8 mt-16 sm:mt-20 animate-fade-in-up">
+          <div className="text-center mb-6 sm:mb-8 mt-16 sm:mt-20">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 sm:mb-4 px-2">
               Download File
             </h1>
             <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-xl mx-auto px-4">
-              Enter your download code or paste the shared link to access your file.
+              Access your file using the provided code.
             </p>
           </div>
 
-          {/* Download Code Input */}
-          <div className="mb-6 sm:mb-8 bg-gray-900 border border-gray-700 rounded-lg shadow-lg animate-fade-in-up delay-200">
-            <div className="p-4 sm:p-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="downloadCode" className="block text-xs sm:text-sm font-medium text-gray-200 mb-2">
-                    Download Code or Link
-                  </label>
-                  <input
-                    type="text"
-                    id="downloadCode"
-                    value={downloadCode}
-                    onChange={(e) => setDownloadCode(e.target.value)}
-                    placeholder="Enter code"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 caret-white text-sm sm:text-base"
-                  />
-                </div>
-                {error && (
-                  <div className="flex items-center space-x-2 text-red-400 text-xs sm:text-sm">
-                    <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span>{error}</span>
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 px-4 py-2 sm:py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm sm:text-base"
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-white"></div>
-                      <span>Checking...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="h-4 w-4" />
-                      <span>Access File</span>
-                    </>
-                  )}
-                </button>
-              </form>
+          {/* Error Display */}
+          {error && (
+            <div className="mb-6 sm:mb-8 bg-red-900/20 border border-red-700 rounded-lg shadow-lg p-4 sm:p-6 text-center">
+              <div className="flex items-center justify-center space-x-2 text-red-400 text-sm sm:text-base">
+                <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Available Files Card */}
-          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-lg animate-fade-in-up delay-400">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
             <div className="p-4 sm:p-6 border-b border-gray-700">
               <h2 className="flex items-center space-x-2 text-white text-base sm:text-lg font-semibold">
                 <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
@@ -218,14 +165,16 @@ export default function ClientPage() {
               </h2>
             </div>
             <div className="p-4 sm:p-6">
-              {uploadedFiles.length === 0 ? (
-                <p className="text-gray-400 text-center py-6 sm:py-8 text-sm sm:text-base">No files available</p>
+              {uploadedFiles.length === 0 && !error ? (
+                <p className="text-gray-400 text-center py-6 sm:py-8 text-sm sm:text-base">
+                  Enter a code in the URL to view files.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {uploadedFiles.map((file) => (
                     <div
                       key={file.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-800 border border-gray-700 rounded-lg space-y-3 sm:space-y-0"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-gray-800 border border-gray-700 rounded-lg gap-y-3 sm:gap-x-4"
                     >
                       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                         <File className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
@@ -237,7 +186,7 @@ export default function ClientPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-3 sm:mt-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 flex-shrink-0 w-full sm:w-auto mt-3 sm:mt-0">
                         <span className="text-xs bg-gray-600 text-gray-200 border border-gray-500 px-2 py-1 rounded-md whitespace-nowrap w-full text-center sm:w-auto">
                           {getTimeRemaining(file.createdAt, file.lifeSpan)}
                         </span>
@@ -258,7 +207,7 @@ export default function ClientPage() {
           </div>
 
           {/* Help Section */}
-          <div className="mt-6 sm:mt-8 text-center animate-fade-in-up delay-600">
+          <div className="mt-6 sm:mt-8 text-center">
             <p className="text-gray-500 text-xs sm:text-sm px-4">
               Need help? The download code is usually 6 or 8 characters long (e.g., ABC123, ABCD1234)
             </p>

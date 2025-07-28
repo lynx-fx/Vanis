@@ -25,7 +25,7 @@ exports.uploadFiles = async (req, res) => {
 
   for (const file of files) {
     const code = generateCode();
-    const downloadUrl = `${frontend}/download/file?${code}`;
+    const downloadUrl = `${frontend}/download/${code}`;
     const newFile = new File({
       fileName: file.filename,
       code,
