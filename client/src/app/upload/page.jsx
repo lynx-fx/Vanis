@@ -27,7 +27,7 @@ export default function ClientPage() {
 
   useEffect(() => {
     const code = uploadedFiles.length > 0 ? uploadedFiles[0].folder : ""
-    setFolderCode(code)
+  setFolderCode(code)
   }, [uploadedFiles])
 
   useEffect(() => {
