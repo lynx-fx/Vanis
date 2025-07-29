@@ -1,10 +1,20 @@
-"use client"
-import Link from "next/link"
-import Navbar from "./Component/nav"
-import Download from "./Component/download"
-import Upload from "./Component/upload"
+"use client";
+import Link from "next/link";
+import Navbar from "./Component/nav";
+import Download from "./Component/download";
+import Upload from "./Component/upload";
+import { useEffect } from "react";
 
 export default function Home() {
+  const VITE_HOST =
+    process.env.NEXT_PUBLIC_NODE_ENV == "production"
+      ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
+      : process.env.NEXT_PUBLIC_BACKEND_LOCAL
+
+  useEffect(() => {
+    fetch(`${VITE_HOST}/ping`);
+  }, []);
+
   return (
     <>
       <Navbar />
@@ -21,7 +31,8 @@ export default function Home() {
             Vanis
           </h1>
           <p className="text-center max-w-2xl text-gray-300 mb-16 px-4 text-lg sm:text-xl md:text-2xl leading-relaxed animate-fade-in-up delay-200">
-            Helping you share files temporarily and securely while being anonymous.
+            Helping you share files temporarily and securely while being
+            anonymous.
           </p>
         </div>
 
@@ -81,5 +92,5 @@ export default function Home() {
         <div className="absolute bottom-32 left-20 w-2 h-2 bg-blue-400/30 rounded-full animate-float delay-2000"></div>
       </main>
     </>
-  )
+  );
 }
