@@ -35,7 +35,7 @@ export default function Home() {
                   <div className="flex justify-center items-center">
                     <Upload />
                   </div>
-                  <h2 className="mt-[-20px] text-2xl sm:text-3xl md:text-4xl font-semibold text-center group-hover:text-purple-300 transition-colors duration-300">
+                  <h2 className="mt-[-50px] text-2xl sm:text-3xl md:text-4xl font-semibold text-center group-hover:text-purple-300 transition-colors duration-300">
                     Upload
                   </h2>
                   <p className="text-gray-400 text-center text-sm sm:text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -51,10 +51,10 @@ export default function Home() {
             <div className="flex justify-center">
               <div className="border-2 border-dotted border-gray-400 bg-white p-6 sm:p-8 md:p-10 rounded-3xl w-full max-w-sm hover:border-gray-600transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 group-hover:animate-pulse-slow">
                 <div className="flex flex-col items-center justify-center space-y-4">
-                  <div className="flex justify-center items-center">
+                  <div className="flex justify-center items-center z-0">
                     <Download />
                   </div>
-                  <h2 className="mt-[-20px] text-2xl sm:text-3xl md:text-4xl font-semibold text-center text-black group-hover:text-blue-600 transition-colors duration-300">
+                  <h2 className="z-1 mt-[-50px] text-2xl sm:text-3xl md:text-4xl font-semibold text-center text-black group-hover:text-blue-600 transition-colors duration-300">
                     Download
                   </h2>
                   <p className="text-gray-600 text-center text-sm sm:text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300">
