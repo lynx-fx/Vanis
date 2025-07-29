@@ -19,7 +19,7 @@ export default function ClientPage() {
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL
 
   const frontend =
-    process.env.NODE_ENV == "production"
+    process.env.NEXT_PUBLIC_NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_FRONTEND_HOSTED
       : process.env.NEXT_PUBLIC_FRONTEND_LOCAL
 
