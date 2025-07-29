@@ -153,7 +153,7 @@ export default function DownloadClient({ code }) {
               Download File
             </h1>
             <p className="text-gray-400 text-xs sm:text-sm md:text-base max-w-xl mx-auto px-4">
-              Access your file using the provided code.
+              Files hooked to link will be displayed here. Use the download code provided in the URL to access your files.
             </p>
           </div>
 
