@@ -12,7 +12,7 @@ export default function ClientPage() {
   const [downloaded, setDownloaded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const VITE_HOST =
-    process.env.NODE_ENV == "production"
+    process.env.NEXT_PUBLIC_NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL
   const [uploadedFiles, setUploadedFiles] = useState([])

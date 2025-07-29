@@ -14,7 +14,7 @@ export default function ClientPage() {
   const [folderCode, setFolderCode] = useState("")
 
   const VITE_HOST =
-    process.env.NODE_ENV == "production"
+    process.env.NEXT_PUBLIC_NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL
 
