@@ -16,7 +16,7 @@ export default function Home() {
         </div>
 
         {/* Header Section */}
-        <div className="relative z-10 text-center animate-fade-in-up">
+        <div className="relative z-10 text-center animate-fade-in-up mt-22 md:mt-10">
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent animate-gradient-x">
             Vanis
           </h1>
@@ -35,7 +35,7 @@ export default function Home() {
                   <div className="flex justify-center items-center">
                     <Upload />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center group-hover:text-purple-300 transition-colors duration-300">
+                  <h2 className="mt-[-20px] text-2xl sm:text-3xl md:text-4xl font-semibold text-center group-hover:text-purple-300 transition-colors duration-300">
                     Upload
                   </h2>
                   <p className="text-gray-400 text-center text-sm sm:text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -54,7 +54,7 @@ export default function Home() {
                   <div className="flex justify-center items-center">
                     <Download />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center text-black group-hover:text-blue-600 transition-colors duration-300">
+                  <h2 className="mt-[-20px] text-2xl sm:text-3xl md:text-4xl font-semibold text-center text-black group-hover:text-blue-600 transition-colors duration-300">
                     Download
                   </h2>
                   <p className="text-gray-600 text-center text-sm sm:text-base opacity-0 group-hover:opacity-100 transition-opacity duration-300">
