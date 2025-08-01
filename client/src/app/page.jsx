@@ -79,7 +79,7 @@ export default function Home() {
 
         {/* CTA Button */}
         <div className="relative z-10 animate-fade-in-up delay-600">
-          <a href="https://github.com/lynx-fx" target="_blank" rel="noreferrer">
+          <a href="https://donate-lynxx.netlify.app/" target="_blank" rel="noreferrer">
             <button className="px-8 py-4 text-black bg-white hover:bg-gray-200 rounded-2xl text-lg sm:text-xl font-semibold transition-all duration-500 hover:scale-110 hover:shadow-lg hover:shadow-white/20 active:scale-95">
               Support the Project
             </button>
