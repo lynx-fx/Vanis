@@ -9,10 +9,18 @@ export default function Home() {
   const VITE_HOST =
     process.env.NEXT_PUBLIC_NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
-      : process.env.NEXT_PUBLIC_BACKEND_LOCAL
+      : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
+
+  console.log(`VITE_HOST: ${VITE_HOST}`);
 
   useEffect(() => {
-    fetch(`${VITE_HOST}/ping`);
+    fetch(`${VITE_HOST}/ping`)
+      .then(() => {
+        console.log("Server pinged successfully");
+      })
+      .catch((err) => {
+        console.error("Failed to ping server");
+      });
   }, []);
 
   return (
@@ -79,7 +87,11 @@ export default function Home() {
 
         {/* CTA Button */}
         <div className="relative z-10 animate-fade-in-up delay-600">
-          <a href="https://donate-lynxx.netlify.app/" target="_blank" rel="noreferrer">
+          <a
+            href="https://donate-lynxx.netlify.app/"
+            target="_blank"
+            rel="noreferrer"
+          >
             <button className="px-8 py-4 text-black bg-white hover:bg-gray-200 rounded-2xl text-lg sm:text-xl font-semibold transition-all duration-500 hover:scale-110 hover:shadow-lg hover:shadow-white/20 active:scale-95">
               Support the Project
             </button>
