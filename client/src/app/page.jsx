@@ -11,8 +11,6 @@ export default function Home() {
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL;
 
-  console.log(`VITE_HOST: ${VITE_HOST}`);
-
   useEffect(() => {
     fetch(`${VITE_HOST}/ping`)
       .then(() => {
