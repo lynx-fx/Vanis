@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react"
 import { Download, File, Clock, Shield, AlertCircle, DownloadCloud } from "lucide-react"
-import Navbar from "../component/nav"
-import Loading from "../component/loading"
+import Navbar from "../Component/nav"
+import Loading from "../Component/loading"
 import { toast } from "sonner"
 
 export default function ClientPage() {
