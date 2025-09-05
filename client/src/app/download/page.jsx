@@ -1,8 +1,8 @@
 "use client"
 import { useState } from "react"
-import { Download, File, Clock, Shield, AlertCircle } from "lucide-react"
-import Navbar from "../Component/nav.jsx"
-import Loading from "../Component/loading.jsx"
+import { Download, File, Clock, Shield, AlertCircle, DownloadCloud } from "lucide-react"
+import Navbar from "../component/nav"
+import Loading from "../component/loading"
 import { toast } from "sonner"
 
 export default function ClientPage() {
@@ -11,10 +11,13 @@ export default function ClientPage() {
   const [error, setError] = useState("")
   const [downloaded, setDownloaded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [downloadingAll, setDownloadingAll] = useState(false)
+
   const VITE_HOST =
     process.env.NEXT_PUBLIC_NODE_ENV == "production"
       ? process.env.NEXT_PUBLIC_BACKEND_HOSTED
       : process.env.NEXT_PUBLIC_BACKEND_LOCAL
+
   const [uploadedFiles, setUploadedFiles] = useState([])
   const [isExpired, setIsExpired] = useState(false)
 
@@ -66,11 +69,12 @@ export default function ClientPage() {
     setLoading(true)
     setError("")
     let code = downloadCode
+
     if (downloadCode.length !== 6 && downloadCode.length !== 8) {
       code = extractCode(downloadCode)
     }
 
-    // DONE: API call here
+    // API call here
     if (code.length === 6) {
       try {
         setIsLoading(true)
@@ -121,7 +125,6 @@ export default function ClientPage() {
 
   const handleDownload = async (fileName) => {
     toast.info(`Downloading...`)
-    // DONE: Implement download logic here
     try {
       setIsLoading(true)
       const response = await fetch(`${VITE_HOST}/api/file/downloadFile/${fileName}`, {
@@ -148,6 +151,66 @@ export default function ClientPage() {
       toast.error("Failed to download file")
     }
     setDownloaded(true)
+  }
+
+  const handleDownloadAll = async () => {
+    if (uploadedFiles.length === 0) {
+      toast.error("No files to download")
+      return
+    }
+
+    if (isExpired) {
+      toast.error("Files have expired")
+      return
+    }
+
+    setDownloadingAll(true)
+    toast.info(`Downloading ${uploadedFiles.length} files...`)
+
+    try {
+      let successCount = 0
+      let failCount = 0
+
+      for (const file of uploadedFiles) {
+        try {
+          const response = await fetch(`${VITE_HOST}/api/file/downloadFile/${file.fileName}`, {
+            method: "GET",
+          })
+
+          if (response.ok) {
+            const blob = await response.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = file.fileName
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            window.URL.revokeObjectURL(url)
+            successCount++
+
+            // Small delay between downloads to prevent overwhelming the browser
+            await new Promise((resolve) => setTimeout(resolve, 500))
+          } else {
+            failCount++
+          }
+        } catch (err) {
+          console.error(`Error downloading ${file.fileName}:`, err)
+          failCount++
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`Successfully downloaded ${successCount} file(s)${failCount > 0 ? `, ${failCount} failed` : ""}`)
+      } else {
+        toast.error("Failed to download files")
+      }
+    } catch (err) {
+      console.error("Error in download all:", err)
+      toast.error("Failed to download files")
+    } finally {
+      setDownloadingAll(false)
+    }
   }
 
   return (
@@ -211,11 +274,30 @@ export default function ClientPage() {
 
           {/* Available Files Card */}
           <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-lg animate-fade-in-up delay-400">
-            <div className="p-4 sm:p-6 border-b border-gray-700">
+            <div className="p-4 sm:p-6 border-b border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="flex items-center space-x-2 text-white text-base sm:text-lg font-semibold">
                 <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 <span>Available Files</span>
               </h2>
+              {uploadedFiles.length > 0 && (
+                <button
+                  onClick={handleDownloadAll}
+                  disabled={downloadingAll || isExpired}
+                  className="bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {downloadingAll ? (
+                    <>
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-gray-400 border-t-white"></div>
+                      <span>Downloading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <DownloadCloud className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span>Download All</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
             <div className="p-4 sm:p-6">
               {uploadedFiles.length === 0 ? (

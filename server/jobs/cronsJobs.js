@@ -1,7 +1,7 @@
 const File = require("../model/fileModel.js");
 const cron = require('node-cron');
 
-cron.schedule('0 */4 * * *', async () => {
+cron.schedule('0 */1 * * *', async () => {
   try {
     const now = new Date();
     const expiredFiles = await File.find({
