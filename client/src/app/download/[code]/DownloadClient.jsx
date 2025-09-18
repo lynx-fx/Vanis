@@ -112,6 +112,7 @@ export default function DownloadClient({ code }) {
     let failCount = 0
 
     for (const file of uploadedFiles) {
+      toast.info(`Downloading ${file.fileName}`);
       try {
         const response = await fetch(`${VITE_HOST}/api/file/downloadFile/${file.fileName}`, {
           method: "GET",
