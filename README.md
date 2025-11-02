@@ -1,6 +1,6 @@
-# Vanis.io - Anonymous File & Folder Sharing
+# Vanis - Anonymous File & Folder Sharing
 
-Vanis.io is a simple and elegant web app that allows users to **share files and folders anonymously**, with options to set expiry time, enable/disable downloads, and track recent shares — all without registration.
+Vanis is a simple and elegant web app that allows users to **share files and folders anonymously**, with options to set expiry time, enable/disable downloads, and track recent shares — all without registration.
 
 Built with **Next.js**, **TailwindCSS**, and optionally **Node/Express or Next.js API routes** for backend upload handling.
 
